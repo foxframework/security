@@ -30,6 +30,7 @@ namespace Fox\Security\Sources\Services;
 use Fox\Core\Config\AppConfiguration;
 use Fox\Core\Helpers\Globals;
 use Fox\Security\Config\FoxSecurityExtensionConfigInterface;
+use Fox\Security\Http\UnauthorizedException;
 
 abstract class IdentityProvider implements IdentityProviderInterface
 {
@@ -47,9 +48,13 @@ abstract class IdentityProvider implements IdentityProviderInterface
         Globals::set(self::FOX_SECURITY_IDENTITY, $identity);
     }
 
-    public final function getIdentity(): ?Identity
+    public final function getIdentity(): Identity
     {
-        return Globals::get(self::FOX_SECURITY_IDENTITY);
+        $i =  Globals::get(self::FOX_SECURITY_IDENTITY);
+        if ($i === null) {
+            throw new UnauthorizedException();
+        }
+        return $i;
     }
 
     public function isAllowed(Identity $identity, string $minimumRole): bool

@@ -41,19 +41,12 @@ use ReflectionClass;
 #[Autowire]
 class SecurityBeforeAction implements BeforeAction
 {
-    private bool $restrictIp;
-    private bool $restrictUA;
     private string $authorizerHandler;
-    private string $JWTSecret;
 
     public function __construct(private IdentityProviderInterface $identityProvider,
-                                AppConfiguration $appConfiguration,
+                                private AppConfiguration $appConfiguration,
                                 private AuthorizerResolver $authorizerResolver)
     {
-        /** @var FoxSecurityExtensionConfigInterface $appConfiguration */
-        $this->restrictIp = $appConfiguration->foxSecurityRestrictJWTForIp();
-        $this->restrictUA = $appConfiguration->foxSecurityRestrictJWTForUA();
-        $this->JWTSecret = $appConfiguration->foxSecurityGetJWTSecret();
         $this->authorizerHandler = $appConfiguration->foxSecurityGetAuthHandler();
     }
 
@@ -77,7 +70,7 @@ class SecurityBeforeAction implements BeforeAction
 
     private function createIdentity(): Identity
     {
-        $userData = $this->authorizerResolver->getAuthorizer($this->authorizerHandler)->authorizeRequest();
+        $userData = $this->authorizerResolver->getAuthorizer($this->authorizerHandler)->authorizeRequest($this->appConfiguration);
         $identity = $this->identityProvider->createIdentity($userData);
         $this->identityProvider->setIdentity($identity);
         return $identity;
