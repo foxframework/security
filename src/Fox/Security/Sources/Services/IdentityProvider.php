@@ -50,7 +50,7 @@ abstract class IdentityProvider implements IdentityProviderInterface
 
     public final function getIdentity(): Identity
     {
-        $i =  Globals::get(self::FOX_SECURITY_IDENTITY);
+        $i = Globals::get(self::FOX_SECURITY_IDENTITY);
         if ($i === null) {
             throw new UnauthorizedException();
         }
@@ -85,6 +85,15 @@ abstract class IdentityProvider implements IdentityProviderInterface
         $parent = $this->roles[$role];
 
         if (empty($parent)) {
+            return false;
+        }
+
+        if (is_array($parent)) {
+            foreach ($parent as $parentRole) {
+                if ($this->matchesRoleOrParentRole($parentRole, $minimumRole)) {
+                    return true;
+                }
+            }
             return false;
         }
 
