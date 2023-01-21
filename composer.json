@@ -3,7 +3,7 @@
     "description": "Security Layer for FoX Framework",
     "type": "library",
     "require": {
-        "foxframework/core": "v0.1.2-alpha",
+        "foxframework/core": "v0.1.5-alpha",
         "firebase/php-jwt": "5.2.*"
     },
     "license": "MIT",

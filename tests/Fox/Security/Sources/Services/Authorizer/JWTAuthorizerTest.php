@@ -33,16 +33,18 @@ require 'dummyFunctions.php';
 use Fox\Core\Http\BadRequestException;
 use Fox\Security\Http\UnauthorizedException;
 use PHPUnit\Framework\TestCase;
+use TestingConfig;
+use TestingIdentityProvider;
 
 
 class JWTAuthorizerTest extends TestCase
 {
-    private \TestingConfig $config;
+    private TestingConfig $config;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->config = new \TestingConfig();
+        $this->config = new TestingConfig();
         $_SERVER['HTTP_CLIENT_IP'] = '10.0.0.1';
         $_SERVER['HTTP_USER_AGENT'] = 'TestingAgent/1.0.0';
     }
@@ -74,13 +76,13 @@ class JWTAuthorizerTest extends TestCase
     {
         $JWTAuthorizer = new JWTAuthorizer();
         $this->expectException(UnauthorizedException::class);
-        $JWTAuthorizer->doAuthorization([], new \TestingIdentityProvider($this->config), $this->config);
+        $JWTAuthorizer->doAuthorization([], new TestingIdentityProvider($this->config), $this->config);
     }
 
     public function testDoAuthorization()
     {
         $JWTAuthorizer = new JWTAuthorizer();
-        $res = $JWTAuthorizer->doAuthorization(['username' => 'owner@example.com', 'password' => 'dummyPassword'], new \TestingIdentityProvider($this->config), $this->config);
+        $res = $JWTAuthorizer->doAuthorization(['username' => 'owner@example.com', 'password' => 'dummyPassword'], new TestingIdentityProvider($this->config), $this->config);
         $this->assertTrue(is_array($res));
         $this->assertArrayHasKey('accessToken', $res);
         $this->assertArrayHasKey('refreshToken', $res);
@@ -107,17 +109,17 @@ class JWTAuthorizerTest extends TestCase
     public function testDoReAuthorizationTooEarly()
     {
         $JWTAuthorizer = new JWTAuthorizer();
-        $res = $JWTAuthorizer->doAuthorization(['username' => 'owner@example.com', 'password' => 'dummyPassword'], new \TestingIdentityProvider($this->config), $this->config);
+        $res = $JWTAuthorizer->doAuthorization(['username' => 'owner@example.com', 'password' => 'dummyPassword'], new TestingIdentityProvider($this->config), $this->config);
         $this->expectException(BadRequestException::class);
-        $JWTAuthorizer->doReAuthorization($res, new \TestingIdentityProvider($this->config), $this->config);
+        $JWTAuthorizer->doReAuthorization($res, new TestingIdentityProvider($this->config), $this->config);
     }
 
     public function testDoReAuthorization()
     {
         $JWTAuthorizer = new JWTAuthorizer();
-        $res = $JWTAuthorizer->doAuthorization(['username' => 'owner@example.com', 'password' => 'dummyPassword'], new \TestingIdentityProvider($this->config), $this->config);
+        $res = $JWTAuthorizer->doAuthorization(['username' => 'owner@example.com', 'password' => 'dummyPassword'], new TestingIdentityProvider($this->config), $this->config);
         sleep(5);
-        $resReauth = $JWTAuthorizer->doReAuthorization($res, new \TestingIdentityProvider($this->config), $this->config);
+        $resReauth = $JWTAuthorizer->doReAuthorization($res, new TestingIdentityProvider($this->config), $this->config);
         $this->assertTrue(is_array($resReauth));
         $this->assertArrayHasKey('accessToken', $resReauth);
         $this->assertArrayHasKey('refreshToken', $resReauth);
